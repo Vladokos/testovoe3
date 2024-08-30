@@ -3,7 +3,7 @@ import { PopUp } from "./components/PopUp/PopUp";
 import axios, { AxiosResponse } from "axios";
 import imageMap from "./asset/images";
 import { Language } from "./components/language/Language";
-import { scrollbarWidth } from '@xobotyi/scrollbar-width';
+import { scrollbarWidth } from "@xobotyi/scrollbar-width";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { getSigns } from "./features/signs/signsSlice";
 
@@ -30,12 +30,30 @@ interface AppInterface {
   } | null;
 }
 
+interface LanguageResponse {
+  language: string;
+}
+
 const App: React.FC = () => {
   const { horoscope } = useAppSelector((state) => state.signs);
   const dispatch = useAppDispatch();
 
   const [currentSign, setCurrentSign] = useState<AppInterface["sign"]>(null);
   const [language, setLanguage] = useState<string>("RU");
+
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const response: AxiosResponse<LanguageResponse> = await axios.get(
+          "https://t-server-zp4s.onrender.com/language"
+        );
+        setLanguage(response.data.language.toUpperCase());
+      } catch (err) {
+      }
+    };
+
+    fetchLanguage();
+  }, []);
 
   useEffect(() => {
     dispatch(getSigns(language));
@@ -73,7 +91,8 @@ const App: React.FC = () => {
                       }
                       onClick={() => {
                         document.body.style.overflow = "hidden";
-                        document.body.style.paddingRight = scrollbarWidth() + "px";
+                        document.body.style.paddingRight =
+                          scrollbarWidth() + "px";
                         setCurrentSign({
                           title: sign,
                           description:
